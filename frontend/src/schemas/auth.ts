@@ -4,9 +4,6 @@
 
 import { z } from 'zod';
 
-// Email validation regex
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 // Login schema
 export const loginSchema = z.object({
   email: z

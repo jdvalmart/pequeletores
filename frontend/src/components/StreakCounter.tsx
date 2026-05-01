@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getStreak } from '../api/client'
+import { getStreak, parseChildId } from '../api/client'
 import './StreakCounter.css'
 
 interface StreakCounterProps {
@@ -7,9 +7,10 @@ interface StreakCounterProps {
 }
 
 export function StreakCounter({ childId }: StreakCounterProps) {
+  const childIdNum = parseChildId(childId)
   const { data, isLoading } = useQuery({
-    queryKey: ['streak', childId],
-    queryFn: () => getStreak(childId),
+    queryKey: ['streak', childIdNum],
+    queryFn: () => getStreak(childIdNum),
     enabled: !!childId
   })
 

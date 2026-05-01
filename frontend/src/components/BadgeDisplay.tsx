@@ -1,24 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
-import { getChildBadges } from '../api/client'
+import { getChildBadges, parseChildId, type Badge } from '../api/client'
 import './BadgeDisplay.css'
 
 interface BadgeDisplayProps {
   childId: number | string
 }
 
-interface Badge {
-  id: number
-  name: string
-  description: string
-  icon: string
-  requirement: number
-  earned_at?: string
-}
-
 export function BadgeDisplay({ childId }: BadgeDisplayProps) {
+  const childIdNum = parseChildId(childId)
   const { data: response, isLoading } = useQuery({
-    queryKey: ['badges', childId],
-    queryFn: () => getChildBadges(childId),
+    queryKey: ['badges', childIdNum],
+    queryFn: () => getChildBadges(childIdNum),
     enabled: !!childId
   })
 

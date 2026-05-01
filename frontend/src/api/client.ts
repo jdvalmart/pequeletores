@@ -155,10 +155,20 @@ export interface BookData {
   key: string;
   title: string;
   author?: string;
-  cover_url?: string;
-  first_publish_year?: number;
+  cover_url?: string | null;
+  first_publish_year?: number | null;
   subject?: string[];
   score?: number;
+}
+
+export interface BookWithScore {
+  key: string;
+  title: string;
+  author: string[];
+  cover_url: string | null;
+  subjects: string[];
+  first_publish_year: number | null;
+  score: number;
 }
 
 export interface RecommendationsResponse {

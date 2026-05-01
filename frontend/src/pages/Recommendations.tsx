@@ -2,8 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { BookGrid } from '../components/BookCard'
-import { getRecommendations, logReading } from '../api/client'
-import type { BookWithScore } from '../types'
+import { getRecommendations, logReading, BookWithScore } from '../api/client'
 import './Recommendations.css'
 
 const DEMO_CHILD_ID = 1  // ID del niño Demo Reader en la base de datos
@@ -34,9 +33,14 @@ export function RecommendationsPage() {
     refetch()
   }, [])
 
-  const books: BookWithScore[] = response?.recommendations?.map((book: BookWithScore) => ({
-    ...book,
-    author: book.author ? [book.author] : []
+  const books: BookWithScore[] = response?.recommendations?.map((book) => ({
+    key: book.key,
+    title: book.title,
+    author: book.author ? [book.author] : [],
+    cover_url: book.cover_url || null,
+    subjects: book.subject || [],
+    first_publish_year: book.first_publish_year || null,
+    score: book.score || 0
   })) || []
 
   const logMutation = useMutation({
