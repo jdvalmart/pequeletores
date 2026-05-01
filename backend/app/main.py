@@ -146,6 +146,14 @@ async def seed_demo_child():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler for startup and shutdown events."""
+    # Startup: Create tables if they don't exist
+    from .database import Base
+    from .models import Badge, Child, ChildPreferences, ReadingLog, ChildBadge
+    
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    logger.info("database_tables_created")
+    
     # Startup: seed badges and demo child
     await seed_badges()
     await seed_demo_child()
