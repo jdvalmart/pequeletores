@@ -19,10 +19,17 @@ class Base(DeclarativeBase):
 
 
 # Database URL from environment
-DATABASE_URL = getenv(
+# Railway provides postgresql:// but we need postgresql+asyncpg:// for async driver
+raw_url = getenv(
     "DATABASE_URL",
     "postgresql+asyncpg://pequena_users:pequena_secret@localhost:5433/pequena_lectores"
 )
+
+# Convert to asyncpg format if needed
+if raw_url.startswith("postgresql://"):
+    DATABASE_URL = raw_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+else:
+    DATABASE_URL = raw_url
 
 # Create async engine with connection pool
 engine = create_async_engine(
