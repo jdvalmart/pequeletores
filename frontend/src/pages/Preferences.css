@@ -1,0 +1,62 @@
+.preferences-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0.5rem;
+}
+
+/* Estilos consistentes para todos los botones Ir al Inicio */
+.home-btn {
+  color: white;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.home-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Preferences - color gris */
+.preferences-page .home-btn {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+}
+
+.preferences-page .home-btn:hover {
+  box-shadow: 0 6px 16px rgba(107, 114, 128, 0.4);
+}
+
+.preferences-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.submit-btn {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5);
+}
+
+.submit-btn:disabled {
+  background: #d1d5db;
+  box-shadow: none;
+  cursor: not-allowed;
+}

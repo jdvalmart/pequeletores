@@ -1,0 +1,40 @@
+# Pre-commit hooks for PequeLectores
+# Install: pip install pre-commit && pre-commit install
+
+repos:
+  # Python hooks
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+  
+  # Git hooks
+  - repo: local
+    hooks:
+      # Check for debugging statements in Python
+      - id: no-debug-statements
+        name: Check for debug statements
+        entry: python -c "import sys; import re; import sys; content = open(sys.argv[1]).read(); sys.exit(1 if re.search(r'(print\(|import pdb|from pdb|breakpoint\()', content) and 'test' not in sys.argv[1]) else 0)"
+        language: system
+        types: [python]
+        pass_filenames: true
+        exclude: 'tests/'
+
+  - repo: local
+    hooks:
+      # Check for debugging statements in TypeScript
+      - id: no-console-log
+        name: Check for console.log
+        entry: grep -l "console.log"
+        language: system
+        types: [typescript]
+        pass_filenames: true
+        exclude: 'tests/'
+
+# Run these hooks on staged files
+default_stages: [pre-commit]
+
+# Skip these hooks for large files
+fail_fast: false

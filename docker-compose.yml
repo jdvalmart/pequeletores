@@ -1,0 +1,67 @@
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: pequelectores_db
+    environment:
+      POSTGRES_USER: ${DB_USER:-pequena_users}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-pequena_secret}
+      POSTGRES_DB: ${DB_NAME:-pequena_lectores}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-pequena_users} -d ${DB_NAME:-pequena_lectores}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - Pequelectores_network
+
+  # Backend (opcional - también puede correrse localmente)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: Pequelectores_backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-pequena_users}:${DB_PASSWORD:-pequena_secret}@postgres:${DB_PORT:-5433}/${DB_NAME:-pequena_lectores}
+      ENVIRONMENT: development
+      DEBUG: "true"
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+      CORS_ORIGINS: "http://localhost:5173,http://localhost:3000"
+      LOG_LEVEL: INFO
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - Pequelectores_network
+
+  # Frontend (opcional - también puede correrse localmente)
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: Pequelectores_frontend
+  #   environment:
+  #     VITE_API_URL: http://localhost:8000
+  #   ports:
+  #     - "5173:5173"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - Pequelectores_network
+
+networks:
+  Pequelectores_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: pequelectores_postgres_data

@@ -1,0 +1,29 @@
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+  border: none;
+  border-radius: 25px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+  margin-bottom: 1rem;
+}
+
+.back-button:hover {
+  transform: translateX(-5px);
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.5);
+}
+
+.back-icon {
+  font-size: 1rem;
+}
+
+.back-label {
+  font-size: 0.85rem;
+}

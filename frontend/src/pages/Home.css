@@ -1,0 +1,102 @@
+.home-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0.5rem;
+}
+
+.home-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.home-header h1 {
+  font-size: 2.5rem;
+  color: #7c3aed;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tagline {
+  color: #f5576c;
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.streak-section {
+  margin-bottom: 1.5rem;
+}
+
+.home-nav {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.nav-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 0.75rem;
+  background: white;
+  border-radius: 20px;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 3px solid transparent;
+}
+
+.nav-card:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.nav-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.nav-label {
+  font-size: 0.85rem;
+  text-align: center;
+  color: #374151;
+  font-weight: 700;
+}
+
+.choose-books {
+  border-bottom: 5px solid #f472b6;
+  background: linear-gradient(180deg, #fdf2f8 0%, white 100%);
+}
+
+.choose-books:hover {
+  border-color: #ec4899;
+}
+
+.get-recommendations {
+  border-bottom: 5px solid #34d399;
+  background: linear-gradient(180deg, #ecfdf5 0%, white 100%);
+}
+
+.get-recommendations:hover {
+  border-color: #10b981;
+}
+
+.my-profile {
+  border-bottom: 5px solid #60a5fa;
+  background: linear-gradient(180deg, #eff6ff 0%, white 100%);
+}
+
+.my-profile:hover {
+  border-color: #3b82f6;
+}
+
+.home-tip {
+  text-align: center;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 16px;
+  color: #92400e;
+  font-size: 0.95rem;
+  border: 2px solid #fbbf24;
+}
