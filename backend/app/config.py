@@ -32,7 +32,7 @@ class Settings(BaseSettings):
 
     # CORS - stored as comma-separated string, converted to list
     cors_origins_str: str = Field(
-        default="http://localhost:5173,http://localhost:3000"
+        default="http://localhost:5173,http://localhost:3000,https://*.netlify.app,https://*.railway.app"
     )
     
     # Auth settings
