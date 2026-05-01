@@ -1,11 +1,9 @@
 /**
  * API Client for PequeLectores
- * With strict types and proper error handling
  */
 
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import type { TokenResponse, Parent, ApiError } from '../types/auth';
-import type { BookData, PreferencesData, ReadingLogData } from '../schemas/common';
 
 // API Configuration
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -24,14 +22,10 @@ const apiClient = axios.create({
 // Error Handling
 // ============================================
 
-/**
- * Custom API Error with typed response
- */
 export class ApiClientError<T = unknown> extends Error {
   status: number;
   data: T | null;
   isNetworkError: boolean;
-  isValidationError: boolean;
 
   constructor(message: string, status: number, data: T | null = null) {
     super(message);
@@ -39,14 +33,12 @@ export class ApiClientError<T = unknown> extends Error {
     this.status = status;
     this.data = data;
     this.isNetworkError = status === 0;
-    this.isValidationError = status === 422;
   }
 }
 
-// Request interceptor for logging and auth
+// Request interceptor
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // Log request in development
     if (import.meta.env.DEV) {
       console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
     }
@@ -58,28 +50,21 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor with error handling
+// Response interceptor
 apiClient.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response;
-  },
+  (response: AxiosResponse) => response,
   (error: AxiosError<ApiError>) => {
     if (import.meta.env.DEV) {
       console.error('[API] Response error:', error.response?.data);
     }
 
     if (!error.response) {
-      // Network error
-      throw new ApiClientError(
-        'Network error. Please check your connection.',
-        0
-      );
+      throw new ApiClientError('Network error. Please check your connection.', 0);
     }
 
     const status = error.response.status;
     const data = error.response.data;
 
-    // Handle specific error codes
     switch (status) {
       case 401:
         throw new ApiClientError('Unauthorized. Please log in again.', status, data);
@@ -87,22 +72,12 @@ apiClient.interceptors.response.use(
         throw new ApiClientError('Access denied.', status, data);
       case 404:
         throw new ApiClientError('Resource not found.', status, data);
-      case 409:
-        throw new ApiClientError(data.detail || 'Conflict.', status, data);
       case 422:
-        throw new ApiClientError(
-          data.detail || 'Validation error.',
-          status,
-          data
-        );
+        throw new ApiClientError(data?.detail || 'Validation error.', status, data);
       case 500:
         throw new ApiClientError('Server error. Please try again later.', status, data);
       default:
-        throw new ApiClientError(
-          data?.detail || 'An unexpected error occurred.',
-          status,
-          data
-        );
+        throw new ApiClientError(data?.detail || 'An unexpected error occurred.', status, data);
     }
   }
 );
@@ -112,18 +87,12 @@ apiClient.interceptors.response.use(
 // ============================================
 
 export async function register(email: string, password: string): Promise<TokenResponse> {
-  const response = await apiClient.post<TokenResponse>('/api/auth/register', {
-    email,
-    password
-  });
+  const response = await apiClient.post<TokenResponse>('/api/auth/register', { email, password });
   return response.data;
 }
 
 export async function login(email: string, password: string): Promise<TokenResponse> {
-  const response = await apiClient.post<TokenResponse>('/api/auth/login', {
-    email,
-    password
-  });
+  const response = await apiClient.post<TokenResponse>('/api/auth/login', { email, password });
   return response.data;
 }
 
@@ -135,18 +104,35 @@ export async function getCurrentParent(token: string): Promise<Parent> {
 }
 
 // ============================================
+// Helpers
+// ============================================
+
+function getAuthConfig(token?: string) {
+  return token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
+}
+
+// ============================================
 // Preferences API
 // ============================================
+
+export interface PreferencesData {
+  id: number;
+  child_id: number;
+  icon_ids: string[];
+  created_at: string;
+  updated_at: string;
+}
 
 export async function savePreferences(
   childId: number,
   iconIds: string[],
   token?: string
 ): Promise<PreferencesData> {
-  const response = await apiClient.post<PreferencesData>('/api/preferences', {
-    child_id: childId,
-    icon_ids: iconIds
-  }, token ? authHeaders(token) : undefined);
+  const response = await apiClient.post<PreferencesData>(
+    '/api/preferences',
+    { child_id: childId, icon_ids: iconIds },
+    getAuthConfig(token)
+  );
   return response.data;
 }
 
@@ -154,8 +140,9 @@ export async function getPreferences(
   childId: number,
   token?: string
 ): Promise<PreferencesData> {
-  const response = await apiClient.get<PreferencesData>(`/api/preferences/${childId}`, 
-    token ? { headers: authHeaders(token) } : undefined
+  const response = await apiClient.get<PreferencesData>(
+    `/api/preferences/${childId}`,
+    getAuthConfig(token)
   );
   return response.data;
 }
@@ -164,14 +151,29 @@ export async function getPreferences(
 // Recommendations API
 // ============================================
 
+export interface BookData {
+  key: string;
+  title: string;
+  author?: string;
+  cover_url?: string;
+  first_publish_year?: number;
+  subject?: string[];
+  score?: number;
+}
+
+export interface RecommendationsResponse {
+  recommendations: BookData[];
+  total: number;
+}
+
 export async function getRecommendations(
   childId: number,
   limit = 10,
   token?: string
-): Promise<BookData[]> {
-  const response = await apiClient.get<BookData[]>('/api/recommendations', {
+): Promise<RecommendationsResponse> {
+  const response = await apiClient.get<RecommendationsResponse>('/api/recommendations', {
     params: { child_id: childId, limit },
-    ...(token ? { headers: authHeaders(token) } : {})
+    ...getAuthConfig(token)
   });
   return response.data;
 }
@@ -180,23 +182,40 @@ export async function getRecommendations(
 // Reading API
 // ============================================
 
+export interface ReadingLogData {
+  id: number;
+  child_id: number;
+  book_id: string;
+  pages_read: number;
+  logged_at: string;
+}
+
+export interface StreakData {
+  streak: number;
+  current_streak: number;
+  longest_streak: number;
+  total_books: number;
+  total_pages: number;
+}
+
 export async function logReading(
   childId: number,
   bookId: string,
   pagesRead: number,
   token?: string
 ): Promise<ReadingLogData> {
-  const response = await apiClient.post<ReadingLogData>('/api/reading/log', {
-    child_id: childId,
-    book_id: bookId,
-    pages_read: pagesRead
-  }, token ? { headers: authHeaders(token) } : {});
+  const response = await apiClient.post<ReadingLogData>(
+    '/api/reading/log',
+    { child_id: childId, book_id: bookId, pages_read: pagesRead },
+    getAuthConfig(token)
+  );
   return response.data;
 }
 
-export async function getStreak(childId: number, token?: string): Promise<{ streak: number }> {
-  const response = await apiClient.get<{ streak: number }>(`/api/reading/streak/${childId}`,
-    token ? { headers: authHeaders(token) } : {}
+export async function getStreak(childId: number, token?: string): Promise<StreakData> {
+  const response = await apiClient.get<StreakData>(
+    `/api/reading/streak/${childId}`,
+    getAuthConfig(token)
   );
   return response.data;
 }
@@ -205,23 +224,38 @@ export async function getStreak(childId: number, token?: string): Promise<{ stre
 // Badges API
 // ============================================
 
+export interface Badge {
+  id: number;
+  name: string;
+  description: string;
+  icon: string;
+  requirement: number;
+}
+
+export interface ChildBadgesResponse {
+  earned: Badge[];
+  unearned: Badge[];
+  total_earned: number;
+}
+
 export async function getAllBadges(token?: string): Promise<Badge[]> {
-  const response = await apiClient.get<Badge[]>('/api/badges',
-    token ? { headers: authHeaders(token) } : {}
-  );
+  const response = await apiClient.get<Badge[]>('/api/badges', getAuthConfig(token));
   return response.data;
 }
 
-export async function getChildBadges(childId: number, token?: string): Promise<Badge[]> {
-  const response = await apiClient.get<Badge[]>(`/api/badges/${childId}`,
-    token ? { headers: authHeaders(token) } : {}
+export async function getChildBadges(childId: number, token?: string): Promise<ChildBadgesResponse> {
+  const response = await apiClient.get<ChildBadgesResponse>(
+    `/api/badges/${childId}`,
+    getAuthConfig(token)
   );
   return response.data;
 }
 
 export async function checkBadges(childId: number, token?: string): Promise<{ new_badges: Badge[] }> {
-  const response = await apiClient.post<{ new_badges: Badge[] }>(`/api/badges/${childId}/check`, {},
-    token ? { headers: authHeaders(token) } : {}
+  const response = await apiClient.post<{ new_badges: Badge[] }>(
+    `/api/badges/${childId}/check`,
+    {},
+    getAuthConfig(token)
   );
   return response.data;
 }
@@ -230,26 +264,9 @@ export async function checkBadges(childId: number, token?: string): Promise<{ ne
 // Helpers
 // ============================================
 
-function authHeaders(token: string): { headers: { Authorization: string } } {
-  return { headers: { Authorization: `Bearer ${token}` } };
-}
-
-/**
- * Parse child ID from string or number
- */
 export function parseChildId(childId: string | number): number {
   const parsed = typeof childId === 'string' ? parseInt(childId, 10) : childId;
   return isNaN(parsed) ? 1 : parsed;
 }
 
-// Type for Badge
-interface Badge {
-  id: number;
-  name: string;
-  description: string;
-  icon: string;
-  requirement: number;
-}
-
 export { apiClient };
-export type { Badge };

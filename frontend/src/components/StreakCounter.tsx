@@ -3,7 +3,7 @@ import { getStreak } from '../api/client'
 import './StreakCounter.css'
 
 interface StreakCounterProps {
-  childId: string
+  childId: number | string
 }
 
 export function StreakCounter({ childId }: StreakCounterProps) {

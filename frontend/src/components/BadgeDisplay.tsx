@@ -3,14 +3,15 @@ import { getChildBadges } from '../api/client'
 import './BadgeDisplay.css'
 
 interface BadgeDisplayProps {
-  childId: string
+  childId: number | string
 }
 
 interface Badge {
-  id: string
+  id: number
   name: string
   description: string
   icon: string
+  requirement: number
   earned_at?: string
 }
 
