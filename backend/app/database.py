@@ -22,14 +22,36 @@ class Base(DeclarativeBase):
 # Railway provides postgresql:// but we need postgresql+asyncpg:// for async driver
 raw_url = getenv(
     "DATABASE_URL",
-    "postgresql+asyncpg://pequena_users:pequena_secret@localhost:5433/pequena_lectores"
+    None  # No default - fail early if not set
 )
+
+if not raw_url:
+    raise RuntimeError(
+        "DATABASE_URL environment variable is not set. "
+        "Please ensure PostgreSQL is linked to your Railway service."
+    )
 
 # Convert to asyncpg format if needed
 if raw_url.startswith("postgresql://"):
     DATABASE_URL = raw_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 else:
     DATABASE_URL = raw_url
+
+# Debug: print truncated URL (hide password)
+if "://" in DATABASE_URL:
+    parts = DATABASE_URL.split("://")
+    if "@" in parts[1]:
+        user_pass = parts[1].split("@")[0]
+        if ":" in user_pass:
+            safe_url = f"{parts[0]}://****:****@{parts[1].split('@')[1]}"
+        else:
+            safe_url = DATABASE_URL
+    else:
+        safe_url = DATABASE_URL
+else:
+    safe_url = DATABASE_URL
+
+print(f"Connecting to database: {safe_url}")
 
 # Create async engine with connection pool
 engine = create_async_engine(
