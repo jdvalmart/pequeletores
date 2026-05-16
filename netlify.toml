@@ -5,3 +5,10 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  VITE_API_URL = "https://pequeletores-production.up.railway.app"
+
+# SPA routing — all routes redirect to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

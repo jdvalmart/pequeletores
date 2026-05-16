@@ -46,7 +46,7 @@ coverage/
 *.sqlite
 
 # Docker
-.dockerignore
+# .dockerignore IS tracked — needed for Railway build
 
 # Temporary
 *.tmp
