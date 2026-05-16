@@ -54,6 +54,18 @@ Los niños entre 6 y 14 años frecuentemente **no encuentran libros que les inte
 
 ---
 
+## 🚀 Despliegue
+
+| Entorno | URL | Rama |
+|---------|-----|------|
+| **Frontend** | https://pequeletores.netlify.app | `main` |
+| **Backend API** | https://pequeletores-production.up.railway.app | `main` |
+
+- **GitHub Push → Railway** — auto-deploy backend con Docker
+- **GitHub Push → Netlify** — auto-deploy frontend con `npm run build`
+
+---
+
 ## 🧠 ¿Cómo funciona la IA?
 
 ### Pipeline de Recomendación (Content-Based Filtering)
@@ -85,30 +97,6 @@ Los niños entre 6 y 14 años frecuentemente **no encuentran libros que les inte
 
 ---
 
-## 📱 Demo Funcional (15 min)
-
-### Flujo de la presentación:
-
-| Tiempo | Sección | Qué mostrar |
-|--------|---------|-------------|
-| 0-2 min | **Presentación** | Nombre del sistema, equipo, problema |
-| 2-4 min | **Objetivos** | Problemática, solución propuesta |
-| 4-7 min | **Arquitectura** | Diagrama, stack tecnológico, despliegue |
-| 7-11 min | **Explicación Técnica** | Pipeline de IA, TF-IDF, cosine similarity, XAI |
-| 11-14 min | **Demo en vivo** | Seleccionar íconos → ver recomendaciones con scores y explicaciones |
-| 14-15 min | **Aprendizajes** | Qué funcionó, retos encontrados, próximos pasos |
-
-### Pasos para la demo en vivo:
-
-1. Abrir `https://pequeletores.netlify.app`
-2. Click en **"Elige tus Intereses"**
-3. Seleccionar 3-5 íconos (ej: 🐉 dragón, 🚀 espacio, ⚽ fútbol)
-4. Click en **"¡Ver Recomendaciones!"**
-5. Mostrar los libros recomendados con **score** y **explicación**
-6. Mostrar **Perfil** → racha de lectura + insignias
-
----
-
 ## 🛠️ Stack Tecnológico
 
 | Capa | Tecnología | Versión |
@@ -120,49 +108,6 @@ Los niños entre 6 y 14 años frecuentemente **no encuentran libros que les inte
 | **Auth** | JWT (python-jose) + bcrypt | 3.3 / 4.0 |
 | **Testing** | pytest, Vitest, React Testing Library | 8.0 / 1.2 / 14.1 |
 | **DevOps** | Docker, Railway, Netlify, GitHub | — |
-
----
-
-## 🧪 Testing
-
-### Backend: 12 tests pasando ✅
-
-```bash
-cd backend && source .venv/bin/activate && pytest tests/ -v
-```
-
-| Suite | Tests | Cobertura |
-|-------|-------|-----------|
-| `test_recommender.py` | 12 | Pipeline ML completo |
-| `test_auth_service.py` | ✓ | Autenticación JWT |
-| `test_auth_routes.py` | ✓ | Endpoints auth |
-| `test_error_handlers.py` | ✓ | Manejo de errores |
-| `test_integration.py` | ✓ | Integración API |
-
-### Frontend: Componentes principales cubiertos ✅
-
-```bash
-cd frontend && npm test
-```
-
----
-
-## 📦 Endpoints API
-
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `GET` | `/health` | Health check |
-| `POST` | `/api/auth/register` | Registro de padres |
-| `POST` | `/api/auth/login` | Inicio de sesión |
-| `GET` | `/api/auth/me` | Perfil del padre autenticado |
-| `POST` | `/api/preferences` | Guardar preferencias del niño |
-| `GET` | `/api/preferences/{id}` | Obtener preferencias |
-| `GET` | `/api/recommendations?child_id=1` | Recomendaciones IA + XAI |
-| `POST` | `/api/reading/log` | Registrar páginas leídas |
-| `GET` | `/api/reading/streak/{id}` | Racha de lectura |
-| `GET` | `/api/badges` | Todas las insignias |
-| `GET` | `/api/badges/{id}` | Insignias del niño |
-| `POST` | `/api/badges/{id}/check` | Verificar nuevas insignias |
 
 ---
 
@@ -184,19 +129,6 @@ cd frontend && npm test
 | Legendary Reader | 5000 | 👑 |
 | First Book | 1 libro | ⭐ |
 | Explorer | 3 materias diferentes | 🧭 |
-
----
-
-## 🚀 Despliegue
-
-| Entorno | URL | Rama |
-|---------|-----|------|
-| **Producción** | https://pequeletores.netlify.app | `main` |
-| **API** | https://pequeletores-production.up.railway.app | `main` |
-
-### CI/CD
-- **GitHub Push → Railway** (auto-deploy backend con Docker)
-- **GitHub Push → Netlify** (auto-deploy frontend con `npm run build`)
 
 ---
 
@@ -259,10 +191,6 @@ uvicorn app.main:app --reload --port 8000
 cd frontend
 npm install
 npm run dev
-
-# 4. Tests
-cd backend && pytest tests/ -v
-cd frontend && npm test
 ```
 
 ---
