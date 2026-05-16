@@ -162,7 +162,7 @@ async def check_and_award_badges(
     
     # Check each badge
     new_badges = []
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     
     for badge in badges:
         if badge.id in earned_ids:

@@ -32,7 +32,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     """Create a JWT access token."""
     to_encode = data.copy()
     
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     if expires_delta:
         expire = now + expires_delta
     else:

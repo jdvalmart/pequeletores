@@ -85,7 +85,7 @@ async def save_preferences(
     )
     existing_prefs = result.scalar_one_or_none()
     
-    now = datetime.now(timezone.utc)
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     
     if existing_prefs:
         # Update existing
