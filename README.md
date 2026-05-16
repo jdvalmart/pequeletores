@@ -195,25 +195,24 @@ npm run dev
 
 ---
 
-## 📚 Lo que Aprendimos
+## 📚 Lo que Aprendimos de IA
 
-### ✅ Qué funcionó bien
-- **TF-IDF + cosine similarity** — enfoque simple pero efectivo para recomendaciones basadas en contenido
-- **FastAPI async** — rendimiento excelente con PostgreSQL async
-- **Railway + Netlify** — despliegue continuo sin configuración compleja
-- **SDD (Spec-Driven Development)** — planificar antes de codear evitó retrabajo
+### ✅ Qué aplicamos del bootcamp
+- **TF-IDF (Term Frequency - Inverse Document Frequency)** — entendimos cómo medir la importancia de una palabra en un documento relativa a una colección. Las palabras que aparecen mucho en un libro pero poco en los demás reciben mayor peso, permitiendo identificar qué hace único a cada libro.
+- **Vectorización de texto** — aprendimos a transformar datos no estructurados (títulos, autores, temas) en vectores numéricos que una máquina puede procesar. Cada libro se convierte en un punto en un espacio de 500 dimensiones.
+- **Similitud coseno** — en vez de comparar palabras exactas, comparamos la dirección de los vectores. Si el vector de preferencias del niño y el vector de un libro apuntan en direcciones similares, el libro es relevante. Esto captura relaciones semánticas que un simple `if "dragons" in subjects` nunca detectaría.
+- **Content-Based Filtering** — implementamos un sistema de recomendación completo donde el perfil del usuario (sus intereses) se compara con las características de los items (metadatos de libros). Sin necesidad de datos históricos de otros usuarios.
+- **XAI (Explainable AI)** — no solo recomendamos, explicamos por qué. Identificamos qué palabras del vocabulario TF-IDF más contribuyeron a cada recomendación, haciendo el sistema transparente y auditable.
 
-### ⚠️ Retos encontrados
-- **CORS en producción** — coordinar orígenes entre Netlify y Railway requirió ajustes
-- **Datetimes aware vs naive** — asyncpg de PostgreSQL no mezcla timezone-aware con naive
-- **OpenLibrary API** — datos inconsistentes (libros sin subjects, covers rotos)
-- **Balance código académico vs producción** — mantenerlo simple pero funcional
+### ⚠️ Retos enfrentados con la IA
+- **Calidad de datos** — OpenLibrary a veces devuelve libros sin `subjects` o con metadatos incompletos. Aprendimos que en ML real, limpiar y normalizar datos consume más tiempo que entrenar el modelo.
+- **TF-IDF vs embeddings** — TF-IDF funciona bien con vocabularios pequeños y conocidos, pero no captura sinónimos ni contexto semántico profundo. Un siguiente paso natural sería usar embeddings (Word2Vec, FastText) o modelos transformer.
+- **Balance simplicidad vs sofisticación** — para un proyecto académico, TF-IDF es perfecto porque se entiende y se explica. Modelos más complejos (redes neuronales, collaborative filtering) requieren más datos y son más difíciles de depurar.
 
-### 🔜 Próximos pasos
-- Frontend de autenticación (login/registro)
-- CRUD de perfiles de niños (múltiples niños por padre)
-- Proteger rutas con JWT
-- Dashboard de padres con progreso de lectura
+### 🔜 Próximos pasos en IA
+- Incorporar **feedback implícito** — usar los libros que el niño ya leyó para refinar recomendaciones
+- **Cold start** — cuando un niño nuevo no tiene preferencias, recomendar por popularidad o edad
+- Evaluar el sistema con **métricas de recomendación** (precision@k, recall@k, diversity)
 
 ---
 
