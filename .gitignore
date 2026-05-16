@@ -19,10 +19,19 @@ yarn-error.log*
 # Frontend build
 frontend/dist/
 
-# Environment files
+# Environment files (local dev — NO van al repo)
 .env
 .env.local
 .env.*.local
+.env.development
+backend/.env
+backend/backend.log
+
+# Railway local config
+.railway/
+
+# SDD artifacts (local)
+.atl/
 
 # IDE
 .idea/
@@ -45,10 +54,6 @@ coverage/
 *.db
 *.sqlite
 
-# Docker
-# .dockerignore IS tracked — needed for Railway build
-
 # Temporary
 *.tmp
-temp/.railway/
-.railway/
+temp/
