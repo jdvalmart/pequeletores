@@ -14,8 +14,9 @@
 | ------------------------ | --------------------------------------------------- |
 | **Nombre del Proyecto**  | PequeLectores Inteligente por IA                    |
 | **Tipo de Proyecto**     | Sistema de recomendación de libros con gamificación |
-| **Fecha de Elaboración** | 30 de abril de 2026                                 |
-| **Versión**              | 1.0.0                                               |
+| **Fecha de Elaboración** | 30 de abril de 2026 — Actualizado 16 de mayo 2026    |
+| **Versión**              | 1.1.0 — Motor de IA real implementado                |
+| **Despliegue**           | Producción: Netlify + Railway                        |
 
 ### 1.2 Integrantes del Equipo de Trabajo
 
@@ -69,9 +70,11 @@ Los niños entre 6 y 14 años frecuentemente no encuentran libros que les intere
 
 #### Módulo de Recomendaciones
 
-- ✅ Recomendaciones basadas en TF-IDF
+- ✅ Recomendaciones basadas en **Content-Based Filtering con TF-IDF + Cosine Similarity** (scikit-learn)
+- ✅ **XAI (Explainable AI):** cada recomendación incluye explicación de por qué se sugirió
 - ✅ Integración con Open Library API
 - ✅ Cover images y metadatos de libros
+- ✅ Scores normalizados 0..1 con porcentaje de compatibilidad
 
 #### Módulo de Gamificación
 
@@ -269,43 +272,80 @@ Los niños entre 6 y 14 años frecuentemente no encuentran libros que les intere
 ### 7.2 Arquitectura
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    FRONTEND (React)                     │
-│  Pages: Home, Preferences, Recommendations, Profile   │
-│  Components: BookCard, StreakCounter, IconPicker       │
-│  API Client: typed + error handling                     │
-└─────────────────────────┬───────────────────────────────┘
-                          │ HTTP/REST
-┌─────────────────────────▼───────────────────────────────┐
-│                   BACKEND (FastAPI)                     │
-│  Routes: /auth/*, /preferences/*, /recommendations/*   │
-│  Services: auth, recommender, openlibrary               │
-│  Middleware: error handlers, logging                   │
-└─────────────────────────┬───────────────────────────────┘
-                          │
-┌─────────────────────────▼───────────────────────────────┐
-│                 DATABASE (PostgreSQL)                   │
-│  Models: Parent, Child, ChildPreferences, ReadingLog    │
-│  Tables: parents, children, badges, reading_logs       │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│                 FRONTEND — Netlify                        │
+│  React + TypeScript + Vite                                │
+│  https://pequeletores.netlify.app                         │
+│  Pages: Home, Preferences, Recommendations, Profile      │
+└────────────────────────┬─────────────────────────────────┘
+                         │ HTTPS
+┌────────────────────────▼─────────────────────────────────┐
+│                 BACKEND — Railway                         │
+│  FastAPI + Python 3.14 + scikit-learn                    │
+│  https://pequeletores-production.up.railway.app           │
+│  Routes: /auth/*, /preferences/*, /recommendations/*    │
+│  Services: TF-IDF, OpenLibrary, auth, gamification       │
+└────────────────────────┬─────────────────────────────────┘
+                         │ asyncpg
+┌────────────────────────▼─────────────────────────────────┐
+│              PostgreSQL 15 — Railway                     │
+│  Models: Parent, Child, Preferences, ReadingLog, Badges  │
+└──────────────────────────────────────────────────────────┘
+                         │ HTTP
+┌────────────────────────▼─────────────────────────────────┐
+│              Open Library API (externo)                   │
+│  Datos de libros: título, autor, portada, temas          │
+└──────────────────────────────────────────────────────────┘
 ```
+
+### 7.3 Pipeline de IA (Content-Based Filtering)
+
+```
+1. Niño selecciona íconos     →  ["🐉", "🚀", "⚽"]
+2. Íconos → queries            →  ["dragons", "fantasy", "space"]
+3. OpenLibrary search          →  60 libros con metadatos
+4. TF-IDF vectorization        →  Matriz 60 libros × 500 features
+5. Cosine similarity           →  Score 0..1 por libro
+6. XAI explanation             →  Top 3 palabras que contribuyeron
+7. Ranking + Top 10            →  Ordenados por score, con explicación
+```
+
+### 7.4 URLs de Producción
+
+| Entorno | URL |
+|---------|-----|
+| **Frontend** | https://pequeletores.netlify.app |
+| **Backend API** | https://pequeletores-production.up.railway.app |
+| **Health Check** | https://pequeletores-production.up.railway.app/health |
 
 ---
 
-## 8. CONCLUSIONES
+## 8. RESULTADOS Y APRENDIZAJES
 
-### 8.1 Resultados Esperados
+### 8.1 Resultados Alcanzados
 
-Al finalizar este proyecto, se habrá construido un sistema completo de recomendación de libros para niños que incluye:
+| Objetivo | Estado |
+|----------|--------|
+| Sistema de autenticación JWT | ✅ Backend implementado |
+| Interfaz visual de selección de intereses (36 íconos) | ✅ Funcionando en producción |
+| Motor de recomendaciones con IA real (TF-IDF + Cosine Similarity) | ✅ Desplegado en Railway |
+| XAI — explicación de cada recomendación | ✅ Top 3 palabras por libro |
+| Gamificación: streaks + 8 badges | ✅ Funcionando |
+| Tests: 12 tests de IA, tests de auth, tests de frontend | ✅ Pasando |
+| Despliegue continuo (GitHub → Railway + Netlify) | ✅ Automático |
+| Documentación (README + GUIA.md + Presentación) | ✅ Completa |
 
-1. ✅ Sistema de autenticación seguro con JWT
-2. ✅ Interfaz de selección visual de intereses
-3. ✅ Motor de recomendaciones basado en TF-IDF
-4. ✅ Sistema de gamificación (streaks y badges)
-5. ✅ Suite completa de tests (48 tests)
-6. ✅ Documentación técnica y de usuario
+### 8.2 Lo que Aprendimos de IA
 
-### 8.2 Recomendaciones para Implementación
+- **TF-IDF real** — cómo medir importancia de palabras en documentos usando scikit-learn, no solo keyword matching manual.
+- **Vectorización de texto** — transformar datos no estructurados (títulos, autores, temas) en vectores numéricos de 500 dimensiones.
+- **Similitud coseno** — comparar direcciones de vectores en vez de palabras exactas, capturando relaciones semánticas.
+- **Content-Based Filtering** — sistema completo sin necesidad de datos de otros usuarios.
+- **XAI** — no solo recomendar, sino explicar por qué. La IA deja de ser "caja negra".
+- **Calidad de datos** — en ML real, limpiar y normalizar datos consume más tiempo que entrenar el modelo. OpenLibrary tiene datos inconsistentes.
+- **TF-IDF vs embeddings** — TF-IDF es excelente para aprender y explicar, pero no captura sinónimos. Siguiente paso: Word2Vec o transformers.
+
+### 8.3 Recomendaciones
 
 1. **Iniciar con testing**: Adoptar TDD desde el inicio del desarrollo
 2. **Separar entornos**: Mantener configuración diferenciada dev/prod
@@ -335,5 +375,5 @@ Consultar README.md para lista completa de endpoints
 
 Juan Valencia | Mireya Traslaviña | Elena Lucumi
 
-_30 de abril de 2026_
+_30 de abril de 2026 — Actualizado 16 de mayo de 2026_
 
