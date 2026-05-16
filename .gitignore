@@ -51,3 +51,4 @@ coverage/
 # Temporary
 *.tmp
 temp/.railway/
+.railway/
