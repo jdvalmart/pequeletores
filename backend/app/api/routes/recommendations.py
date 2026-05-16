@@ -23,6 +23,7 @@ class BookRecommendation(BaseModel):
     first_publish_year: int | None
     subject: list[str]
     score: float
+    explanation: str = ""  # Palabras clave que explican la recomendación (XAI)
 
 
 class RecommendationsResponse(BaseModel):
@@ -89,7 +90,8 @@ async def get_recommendations(
             cover_url=book.get("cover_url"),
             first_publish_year=book.get("first_publish_year"),
             subject=book.get("subject", []),
-            score=book["score"]
+            score=book["score"],
+            explanation=book.get("explanation", "")
         )
         for book in top_books
     ]
