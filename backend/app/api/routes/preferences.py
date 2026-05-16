@@ -1,6 +1,6 @@
 """Preferences API routes."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field, field_validator
@@ -85,7 +85,7 @@ async def save_preferences(
     )
     existing_prefs = result.scalar_one_or_none()
     
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     
     if existing_prefs:
         # Update existing

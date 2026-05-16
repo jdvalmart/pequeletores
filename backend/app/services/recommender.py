@@ -1,55 +1,18 @@
-"""TF-IDF recommender service for book recommendations."""
+"""Keyword-based recommender service for book recommendations."""
 
 from typing import Any
 
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-
 
 class TFIDFRecommender:
-    """TF-IDF based content recommender for books.
+    """Content-based recommender for books.
     
-    Uses TF-IDF vectorization to score books based on their
-    textual features (title, author, subjects) against
-    user preference queries.
+    Scores books by matching user preference keywords against
+    book titles, authors, and subjects.
     """
     
     def __init__(self):
         """Initialize the recommender."""
-        self._vectorizer = TfidfVectorizer(
-            stop_words="english",
-            max_features=5000,
-            ngram_range=(1, 2),
-            min_df=1,
-            max_df=0.95
-        )
-        self._fitted = False
-    
-    def _prepare_text(self, book: dict[str, Any], queries: list[str]) -> str:
-        """Prepare text features from a book for vectorization.
-        
-        Combines title, author, and subjects into a single text string.
-        """
-        parts = []
-        
-        # Add title
-        if book.get("title"):
-            parts.append(book["title"])
-        
-        # Add author
-        if book.get("author"):
-            parts.append(book["author"])
-        
-        # Add subjects as they are important for matching
-        if book.get("subject"):
-            parts.extend(book["subject"])
-        
-        # Combine with queries for context
-        if queries:
-            parts.extend(queries)
-        
-        return " ".join(parts)
+        pass
     
     def score_books(
         self,

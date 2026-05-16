@@ -176,16 +176,15 @@ def create_app() -> FastAPI:
     # Setup error handlers first
     setup_error_handlers(app)
 
-    # Configure CORS middleware - allow all for development
+    # Configure CORS middleware
     cors_origins = get_cors_origins()
-    
     logger.info("cors_origins", origins=cors_origins)
     
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # Allow all for now
+        allow_origins=cors_origins,
         allow_credentials=True,
-        allow_methods=["*"],
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allow_headers=["*"],
     )
 

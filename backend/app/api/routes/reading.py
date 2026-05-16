@@ -69,7 +69,7 @@ async def log_reading(
         child_id=log_data.child_id,
         book_id=log_data.book_id,
         pages_read=log_data.pages_read,
-        logged_at=datetime.utcnow()
+        logged_at=datetime.now(timezone.utc)
     )
     session.add(new_log)
     await session.commit()

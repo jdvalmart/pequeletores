@@ -1,6 +1,6 @@
 """Gamification API routes for badges and achievements."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -162,7 +162,7 @@ async def check_and_award_badges(
     
     # Check each badge
     new_badges = []
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     
     for badge in badges:
         if badge.id in earned_ids:
