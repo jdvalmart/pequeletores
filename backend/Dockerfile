@@ -1,17 +1,14 @@
-# PequeLectores Backend — Dockerfile for Railway
+# PequeLectores Backend
 FROM python:3.14-slim
 
 WORKDIR /app
 
-# Install dependencies (cached layer)
+# Install dependencies
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code (excludes .venv, .env, tests via .dockerignore)
+# Copy application code
 COPY backend/ .
 
-# Expose port
 EXPOSE 8000
-
-# Startup — Railway proporciona $PORT automáticamente
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

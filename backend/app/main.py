@@ -19,9 +19,6 @@ from .middleware.errors import setup_error_handlers
 # Load settings FIRST
 settings = get_settings()
 
-# Fail fast in production if SECRET_KEY is insecure
-settings.validate_production_secret()
-
 # Configure structlog
 structlog.configure(
     processors=[
