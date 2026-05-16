@@ -1,161 +1,299 @@
-# PequeLectores Inteligente por IA
+# 📚 PequeLectores — Recomendación de Libros con IA
 
-Book recommendation system for children (ages 6-14) with AI-powered recommendations and gamification.
+> **Bootcamp MINTIC IA — Proyecto Final**  
+> Sistema de recomendación de libros para niños usando Inteligencia Artificial y gamificación.
 
-## Stack
+---
 
-- **Frontend**: React + TypeScript + Vite + Vitest
-- **Backend**: FastAPI (Python async) + SQLAlchemy
-- **Database**: PostgreSQL
-- **ML**: scikit-learn (TF-IDF)
-- **Testing**: pytest (backend), Vitest (frontend)
+## 👥 Equipo
 
-## Quick Start
+| Integrante | Rol | Responsabilidades |
+|------------|-----|-------------------|
+| **Juan David Valencia** | Lead Developer / Backend | Arquitectura, API REST, motor de IA, DevOps |
+| **Mireya Traslaviña** | Frontend Developer / UX | Interfaz de usuario, diseño responsivo, experiencia visual |
+| **Elena Lucumi** | QA Engineer / Testing | Pruebas unitarias, integración, validación de calidad |
 
-### 1. Start PostgreSQL
+---
 
-```bash
-docker-compose up -d
+## 🎯 El Problema
+
+Los niños entre 6 y 14 años frecuentemente **no encuentran libros que les interesen**, lo que reduce su motivación por la lectura. Los padres y tutores enfrentan dificultades para identificar títulos apropiados.
+
+**PequeLectores resuelve esto con:**
+- 🎨 **Selección visual de intereses** — el niño elige íconos (🐉 dragones, 🚀 espacio, ⚽ deportes)
+- 🧠 **IA real** — TF-IDF + similitud coseno para recomendar libros personalizados
+- 🏆 **Gamificación** — rachas de lectura e insignias que motivan a seguir leyendo
+
+---
+
+## 🏗️ Arquitectura
+
+```
+┌──────────────────────────────────────────────────┐
+│              FRONTEND (Netlify)                   │
+│  React + TypeScript + Vite                        │
+│  https://pequeletores.netlify.app                 │
+└────────────────────┬─────────────────────────────┘
+                     │ HTTPS
+┌────────────────────▼─────────────────────────────┐
+│              BACKEND (Railway)                    │
+│  FastAPI + Python 3.14 + scikit-learn            │
+│  https://pequeletores-production.up.railway.app   │
+└────────────────────┬─────────────────────────────┘
+                     │ asyncpg
+┌────────────────────▼─────────────────────────────┐
+│           PostgreSQL 15 (Railway)                 │
+│  Tablas: children, preferences, reading_logs      │
+└──────────────────────────────────────────────────┘
+                     │ HTTP
+┌────────────────────▼─────────────────────────────┐
+│           Open Library API (externo)              │
+│  Datos de libros: título, autor, portada, temas   │
+└──────────────────────────────────────────────────┘
 ```
 
-### 2. Setup Backend
+---
 
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-pip install -r requirements.txt
+## 🧠 ¿Cómo funciona la IA?
 
-# Configure environment
-cp .env.production .env  # For production, or use .env for development
+### Pipeline de Recomendación (Content-Based Filtering)
 
-uvicorn app.main:app --reload --port 8000
+```
+1. Niño selecciona íconos  ──→  ["🐉", "🚀", "⚽"]
+2. Íconos → queries         ──→  ["dragons", "fantasy", "space", "sports"]
+3. OpenLibrary search       ──→  60 libros con título, autor, temas
+4. TF-IDF vectorization     ──→  Matriz numérica libros × palabras
+5. Cosine similarity        ──→  Score 0..1 por libro
+6. Top 10 + XAI             ──→  "Recomendado por: dragons, fantasy"
 ```
 
-### 3. Setup Frontend
+### Tecnologías de IA utilizadas
 
-```bash
-cd frontend
-npm install
-npm run dev
+| Concepto | Herramienta | ¿Qué hace? |
+|----------|-------------|-----------|
+| **TF-IDF** | `TfidfVectorizer` (scikit-learn) | Convierte texto de libros en vectores numéricos, midiendo importancia de cada palabra |
+| **Similitud Coseno** | `cosine_similarity` (scikit-learn) | Compara el vector de preferencias del niño con cada libro |
+| **XAI** | Algoritmo propio | Explica qué palabras contribuyeron más a cada recomendación |
+
+### Ejemplo real (producción)
+
+```
+📚 His Majesty's Dragon    → score: 0.41 | dragons, fantasy
+📚 Dragonsong              → score: 0.28 | dragons, fantasy  
+📚 No children, no pets    → score: 0.28 | pets
 ```
 
-### 4. Run Tests (Optional)
+---
+
+## 📱 Demo Funcional (15 min)
+
+### Flujo de la presentación:
+
+| Tiempo | Sección | Qué mostrar |
+|--------|---------|-------------|
+| 0-2 min | **Presentación** | Nombre del sistema, equipo, problema |
+| 2-4 min | **Objetivos** | Problemática, solución propuesta |
+| 4-7 min | **Arquitectura** | Diagrama, stack tecnológico, despliegue |
+| 7-11 min | **Explicación Técnica** | Pipeline de IA, TF-IDF, cosine similarity, XAI |
+| 11-14 min | **Demo en vivo** | Seleccionar íconos → ver recomendaciones con scores y explicaciones |
+| 14-15 min | **Aprendizajes** | Qué funcionó, retos encontrados, próximos pasos |
+
+### Pasos para la demo en vivo:
+
+1. Abrir `https://pequeletores.netlify.app`
+2. Click en **"Elige tus Intereses"**
+3. Seleccionar 3-5 íconos (ej: 🐉 dragón, 🚀 espacio, ⚽ fútbol)
+4. Click en **"¡Ver Recomendaciones!"**
+5. Mostrar los libros recomendados con **score** y **explicación**
+6. Mostrar **Perfil** → racha de lectura + insignias
+
+---
+
+## 🛠️ Stack Tecnológico
+
+| Capa | Tecnología | Versión |
+|------|-----------|---------|
+| **Frontend** | React, TypeScript, Vite | 18 / 5.3 / 5.0 |
+| **Backend** | FastAPI, Python | 0.115 / 3.14 |
+| **Base de Datos** | PostgreSQL + SQLAlchemy async | 15 / 2.0 |
+| **IA/ML** | scikit-learn (TF-IDF), numpy | 1.4 / 1.26 |
+| **Auth** | JWT (python-jose) + bcrypt | 3.3 / 4.0 |
+| **Testing** | pytest, Vitest, React Testing Library | 8.0 / 1.2 / 14.1 |
+| **DevOps** | Docker, Railway, Netlify, GitHub | — |
+
+---
+
+## 🧪 Testing
+
+### Backend: 12 tests pasando ✅
 
 ```bash
-# Backend tests
-cd backend && pytest --cov
+cd backend && source .venv/bin/activate && pytest tests/ -v
+```
 
-# Frontend tests
+| Suite | Tests | Cobertura |
+|-------|-------|-----------|
+| `test_recommender.py` | 12 | Pipeline ML completo |
+| `test_auth_service.py` | ✓ | Autenticación JWT |
+| `test_auth_routes.py` | ✓ | Endpoints auth |
+| `test_error_handlers.py` | ✓ | Manejo de errores |
+| `test_integration.py` | ✓ | Integración API |
+
+### Frontend: Componentes principales cubiertos ✅
+
+```bash
 cd frontend && npm test
 ```
 
-## API Endpoints
+---
 
-### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /api/auth/register | Register new parent |
-| POST | /api/auth/login | Login parent |
-| GET | /api/auth/me | Get current parent |
+## 📦 Endpoints API
 
-### Preferences
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /api/preferences | Save child preferences |
-| GET | /api/preferences/{child_id} | Get child preferences |
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| `GET` | `/health` | Health check |
+| `POST` | `/api/auth/register` | Registro de padres |
+| `POST` | `/api/auth/login` | Inicio de sesión |
+| `GET` | `/api/auth/me` | Perfil del padre autenticado |
+| `POST` | `/api/preferences` | Guardar preferencias del niño |
+| `GET` | `/api/preferences/{id}` | Obtener preferencias |
+| `GET` | `/api/recommendations?child_id=1` | Recomendaciones IA + XAI |
+| `POST` | `/api/reading/log` | Registrar páginas leídas |
+| `GET` | `/api/reading/streak/{id}` | Racha de lectura |
+| `GET` | `/api/badges` | Todas las insignias |
+| `GET` | `/api/badges/{id}` | Insignias del niño |
+| `POST` | `/api/badges/{id}/check` | Verificar nuevas insignias |
 
-### Recommendations
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/recommendations | Get book recommendations |
+---
 
-### Reading Activity
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /api/reading/log | Log reading activity |
-| GET | /api/reading/streak/{child_id} | Get streak |
+## 🏆 Sistema de Gamificación
 
-### Badges
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/badges | Get all badges |
-| GET | /api/badges/{child_id} | Get child's badges |
+### Rachas (Streaks)
+- 🔥 Días consecutivos de lectura
+- 🏅 Récord personal guardado
 
-## Features
+### Insignias (Badges)
 
-- 🎨 Visual preference selection (icon picker)
-- 📚 Book recommendations via TF-IDF
-- 🔥 Reading streaks
-- 🏆 Badge system
-- 📖 Open Library integration
-- 🔐 Parent authentication (JWT)
-- ✅ Full test coverage (backend + frontend)
+| Insignia | Páginas requeridas | Icono |
+|----------|-------------------|-------|
+| First Pages | 10 | 📖 |
+| Chapter One | 50 | 📚 |
+| Bookworm | 100 | 🔖 |
+| Avid Reader | 500 | 🎓 |
+| Reading Champion | 1000 | 🏆 |
+| Legendary Reader | 5000 | 👑 |
+| First Book | 1 libro | ⭐ |
+| Explorer | 3 materias diferentes | 🧭 |
 
-## Environment Variables
+---
 
-### Backend (.env)
+## 🚀 Despliegue
 
-```bash
-# Database
-DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5433/pequena_lectores
+| Entorno | URL | Rama |
+|---------|-----|------|
+| **Producción** | https://pequeletores.netlify.app | `main` |
+| **API** | https://pequeletores-production.up.railway.app | `main` |
 
-# App Settings
-DEBUG=true
-ENVIRONMENT=development
+### CI/CD
+- **GitHub Push → Railway** (auto-deploy backend con Docker)
+- **GitHub Push → Netlify** (auto-deploy frontend con `npm run build`)
 
-# Server
-BACKEND_HOST=0.0.0.0
-BACKEND_PORT=8000
+---
 
-# CORS
-CORS_ORIGINS=http://localhost:5173,http://localhost:3000
-
-# Auth (change in production!)
-SECRET_KEY=your-secret-key
-```
-
-### Backend (.env.production) - Production Template
-
-```bash
-DEBUG=false
-ENVIRONMENT=production
-DATABASE_URL=postgresql+asyncpg://prod-url
-SECRET_KEY=<generate-secure-key>
-CORS_ORIGINS=https://your-domain.com
-```
-
-### Frontend (.env)
-
-```bash
-VITE_API_URL=http://localhost:8000
-```
-
-## Project Structure
+## 📂 Estructura del Proyecto
 
 ```
 PequeLectores_inteligente_por_IA/
 ├── backend/
 │   ├── app/
-│   │   ├── api/routes/    # API endpoints
-│   │   ├── models/        # SQLAlchemy models
-│   │   ├── services/      # Business logic
-│   │   ├── middleware/    # Error handlers
-│   │   └── config.py      # Settings
-│   ├── tests/             # Backend tests
+│   │   ├── api/
+│   │   │   ├── deps.py              # Dependencias FastAPI (DB session)
+│   │   │   └── routes/
+│   │   │       ├── auth.py          # Registro/login JWT
+│   │   │       ├── preferences.py   # Preferencias del niño
+│   │   │       ├── recommendations.py # Motor de recomendación
+│   │   │       ├── reading.py       # Registro de lectura + streaks
+│   │   │       └── gamification.py  # Badges e insignias
+│   │   ├── middleware/
+│   │   │   └── errors.py            # Manejo global de errores
+│   │   ├── models/                  # Modelos SQLAlchemy
+│   │   ├── services/
+│   │   │   ├── recommender.py       # 🧠 IA: TF-IDF + cosine similarity
+│   │   │   ├── openlibrary.py       # Cliente Open Library API
+│   │   │   └── auth.py              # Servicio de autenticación
+│   │   ├── config.py                # Configuración con pydantic-settings
+│   │   ├── database.py              # Conexión async a PostgreSQL
+│   │   └── main.py                  # Punto de entrada FastAPI
+│   ├── tests/                       # Tests backend (pytest)
+│   ├── Dockerfile                   # Imagen para Railway
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   │   ├── api/          # API client
-│   │   ├── components/   # React components
-│   │   ├── pages/        # Page components
-│   │   ├── types/        # TypeScript types
-│   │   └── schemas/      # Zod schemas
-│   ├── tests/            # Frontend tests
+│   │   ├── api/client.ts            # Cliente HTTP tipado
+│   │   ├── components/              # BookCard, StreakCounter, IconPicker...
+│   │   ├── pages/                   # Home, Preferences, Recommendations, Profile
+│   │   ├── types/                   # Tipos TypeScript
+│   │   └── schemas/                 # Validación Zod
+│   ├── tests/                       # Tests frontend (Vitest)
 │   └── package.json
-└── docker-compose.yml
+├── netlify.toml                     # Configuración Netlify
+├── railway.json                     # Configuración Railway
+└── docker-compose.yml               # PostgreSQL local
 ```
 
-## License
+---
 
-MIT
+## 🧪 Desarrollo Local
+
+```bash
+# 1. PostgreSQL
+docker-compose up -d
+
+# 2. Backend
+cd backend
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+
+# 3. Frontend
+cd frontend
+npm install
+npm run dev
+
+# 4. Tests
+cd backend && pytest tests/ -v
+cd frontend && npm test
+```
+
+---
+
+## 📚 Lo que Aprendimos
+
+### ✅ Qué funcionó bien
+- **TF-IDF + cosine similarity** — enfoque simple pero efectivo para recomendaciones basadas en contenido
+- **FastAPI async** — rendimiento excelente con PostgreSQL async
+- **Railway + Netlify** — despliegue continuo sin configuración compleja
+- **SDD (Spec-Driven Development)** — planificar antes de codear evitó retrabajo
+
+### ⚠️ Retos encontrados
+- **CORS en producción** — coordinar orígenes entre Netlify y Railway requirió ajustes
+- **Datetimes aware vs naive** — asyncpg de PostgreSQL no mezcla timezone-aware con naive
+- **OpenLibrary API** — datos inconsistentes (libros sin subjects, covers rotos)
+- **Balance código académico vs producción** — mantenerlo simple pero funcional
+
+### 🔜 Próximos pasos
+- Frontend de autenticación (login/registro)
+- CRUD de perfiles de niños (múltiples niños por padre)
+- Proteger rutas con JWT
+- Dashboard de padres con progreso de lectura
+
+---
+
+## 📄 Licencia
+
+MIT — Proyecto académico Bootcamp MINTIC IA 2026.
+
+---
+
+> **Juan Valencia · Mireya Traslaviña · Elena Lucumi**  
+> *"Porque cada niño merece encontrar su próximo libro favorito"* 📚
