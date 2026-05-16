@@ -64,6 +64,14 @@ class Settings(BaseSettings):
         """Check if running in development environment."""
         return self.environment.lower() == "development"
 
+    def validate_production_secret(self) -> None:
+        """Fail fast if SECRET_KEY is default in production."""
+        if self.is_production() and self.secret_key == "dev-secret-key":
+            raise ValueError(
+                "SECRET_KEY must be set to a secure value in production. "
+                "Set the SECRET_KEY environment variable in Railway dashboard."
+            )
+
 
 @lru_cache
 def get_settings() -> Settings:

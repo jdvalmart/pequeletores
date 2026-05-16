@@ -31,9 +31,11 @@ if not raw_url:
         "Please ensure PostgreSQL is linked to your Railway service."
     )
 
-# Convert to asyncpg format if needed
+# Convert to asyncpg format if needed (Railway provides postgresql:// or postgres://)
 if raw_url.startswith("postgresql://"):
     DATABASE_URL = raw_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+elif raw_url.startswith("postgres://"):
+    DATABASE_URL = raw_url.replace("postgres://", "postgresql+asyncpg://", 1)
 else:
     DATABASE_URL = raw_url
 
