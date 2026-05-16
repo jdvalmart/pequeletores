@@ -1,218 +1,187 @@
 # 📚 PequeLectores — Recomendación de Libros con IA
 
 > **Bootcamp MINTIC IA — Proyecto Final**  
-> Sistema de recomendación de libros para niños usando Inteligencia Artificial y gamificación.
+> Una página web que recomienda libros a niños usando Inteligencia Artificial.
 
 ---
 
 ## 👥 Equipo
 
-| Integrante | Rol | Responsabilidades |
-|------------|-----|-------------------|
-| **Juan David Valencia** | Lead Developer / Backend | Arquitectura, API REST, motor de IA, DevOps |
-| **Mireya Traslaviña** | Frontend Developer / UX | Interfaz de usuario, diseño responsivo, experiencia visual |
-| **Elena Lucumi** | QA Engineer / Testing | Pruebas unitarias, integración, validación de calidad |
+| Integrante | Rol | ¿Qué hizo? |
+|------------|-----|-------------|
+| **Juan David Valencia** | Lead Developer / Backend | El "cerebro" del sistema: API, base de datos, y el motor de IA |
+| **Mireya Traslaviña** | Frontend Developer / UX | La "cara" del sistema: diseño, interfaz, experiencia del usuario |
+| **Elena Lucumi** | QA Engineer / Testing | La "calidad": pruebas, validación, asegurar que todo funcione |
 
 ---
 
-## 🎯 El Problema
+## 🎯 ¿Qué problema resolvemos?
 
-Los niños entre 6 y 14 años frecuentemente **no encuentran libros que les interesen**, lo que reduce su motivación por la lectura. Los padres y tutores enfrentan dificultades para identificar títulos apropiados.
+Los niños entre 6 y 14 años muchas veces **no encuentran libros que les gusten**. Entran a una biblioteca o librería, ven cientos de libros y no saben cuál elegir. Los papás tampoco saben qué recomendarles.
 
-**PequeLectores resuelve esto con:**
-- 🎨 **Selección visual de intereses** — el niño elige íconos (🐉 dragones, 🚀 espacio, ⚽ deportes)
-- 🧠 **IA real** — TF-IDF + similitud coseno para recomendar libros personalizados
-- 🏆 **Gamificación** — rachas de lectura e insignias que motivan a seguir leyendo
+**Nuestra solución:**
+- 🎨 El niño **elige íconos** de lo que le gusta (🐉 dragones, 🚀 espacio, ⚽ deportes...)
+- 🧠 Una **Inteligencia Artificial** analiza sus gustos y busca libros parecidos
+- 🏆 El sistema lo **motiva con juegos**: rachas de lectura e insignias por logros
+
+> *En palabras simples: es como Netflix, pero para libros infantiles.*
 
 ---
 
-## 🏗️ Arquitectura
+## 🏗️ ¿Cómo está construido?
 
+Imagina el sistema como un restaurante:
+
+| Parte | ¿Qué es? | Tecnología |
+|-------|----------|------------|
+| 🖥️ **Frontend** | Lo que el niño ve en la pantalla (botones, íconos, colores) | React + TypeScript |
+| 🧠 **Backend** | El "cerebro" que procesa los datos y toma decisiones | FastAPI + Python |
+| 💾 **Base de Datos** | Donde se guarda todo (gustos del niño, libros leídos, insignias) | PostgreSQL |
+| 🤖 **Motor de IA** | El que decide qué libros recomendar analizando palabras | scikit-learn (TF-IDF) |
+| 📚 **Open Library** | Una biblioteca gratuita de internet de donde sacamos los libros | API externa |
+
+**Diagrama simplificado:**
 ```
-┌──────────────────────────────────────────────────┐
-│              FRONTEND (Netlify)                   │
-│  React + TypeScript + Vite                        │
-│  https://pequeletores.netlify.app                 │
-└────────────────────┬─────────────────────────────┘
-                     │ HTTPS
-┌────────────────────▼─────────────────────────────┐
-│              BACKEND (Railway)                    │
-│  FastAPI + Python 3.14 + scikit-learn            │
-│  https://pequeletores-production.up.railway.app   │
-└────────────────────┬─────────────────────────────┘
-                     │ asyncpg
-┌────────────────────▼─────────────────────────────┐
-│           PostgreSQL 15 (Railway)                 │
-│  Tablas: children, preferences, reading_logs      │
-└──────────────────────────────────────────────────┘
-                     │ HTTP
-┌────────────────────▼─────────────────────────────┐
-│           Open Library API (externo)              │
-│  Datos de libros: título, autor, portada, temas   │
-└──────────────────────────────────────────────────┘
+ Niño usa la app → Frontend pide libros → Backend consulta IA
+                                                    ↓
+    IA analiza gustos y busca en Open Library → Devuelve los 10 mejores libros
 ```
 
 ---
 
-## 🚀 Despliegue
+## 🚀 ¿Dónde está funcionando?
 
-| Entorno | URL | Rama |
-|---------|-----|------|
-| **Frontend** | https://pequeletores.netlify.app | `main` |
-| **Backend API** | https://pequeletores-production.up.railway.app | `main` |
+El sistema está **vivo en internet**, no solo en una computadora:
 
-- **GitHub Push → Railway** — auto-deploy backend con Docker
-- **GitHub Push → Netlify** — auto-deploy frontend con `npm run build`
+| ¿Qué? | ¿Dónde? |
+|--------|---------|
+| **La página web** | [pequeletores.netlify.app](https://pequeletores.netlify.app) |
+| **El cerebro (API)** | [pequeletores-production.up.railway.app](https://pequeletores-production.up.railway.app) |
 
----
-
-## 🧠 ¿Cómo funciona la IA?
-
-### Pipeline de Recomendación (Content-Based Filtering)
-
-```
-1. Niño selecciona íconos  ──→  ["🐉", "🚀", "⚽"]
-2. Íconos → queries         ──→  ["dragons", "fantasy", "space", "sports"]
-3. OpenLibrary search       ──→  60 libros con título, autor, temas
-4. TF-IDF vectorization     ──→  Matriz numérica libros × palabras
-5. Cosine similarity        ──→  Score 0..1 por libro
-6. Top 10 + XAI             ──→  "Recomendado por: dragons, fantasy"
-```
-
-### Tecnologías de IA utilizadas
-
-| Concepto | Herramienta | ¿Qué hace? |
-|----------|-------------|-----------|
-| **TF-IDF** | `TfidfVectorizer` (scikit-learn) | Convierte texto de libros en vectores numéricos, midiendo importancia de cada palabra |
-| **Similitud Coseno** | `cosine_similarity` (scikit-learn) | Compara el vector de preferencias del niño con cada libro |
-| **XAI** | Algoritmo propio | Explica qué palabras contribuyeron más a cada recomendación |
-
-### Ejemplo real (producción)
-
-```
-📚 His Majesty's Dragon    → score: 0.41 | dragons, fantasy
-📚 Dragonsong              → score: 0.28 | dragons, fantasy  
-📚 No children, no pets    → score: 0.28 | pets
-```
+Cada vez que subimos código a GitHub, el sistema se actualiza solo en ambos lugares.
 
 ---
 
-## 🛠️ Stack Tecnológico
+## 🧠 ¿Cómo funciona la Inteligencia Artificial?
 
-| Capa | Tecnología | Versión |
-|------|-----------|---------|
-| **Frontend** | React, TypeScript, Vite | 18 / 5.3 / 5.0 |
-| **Backend** | FastAPI, Python | 0.115 / 3.14 |
-| **Base de Datos** | PostgreSQL + SQLAlchemy async | 15 / 2.0 |
-| **IA/ML** | scikit-learn (TF-IDF), numpy | 1.4 / 1.26 |
-| **Auth** | JWT (python-jose) + bcrypt | 3.3 / 4.0 |
-| **Testing** | pytest, Vitest, React Testing Library | 8.0 / 1.2 / 14.1 |
-| **DevOps** | Docker, Railway, Netlify, GitHub | — |
+> *Imagina que tienes una biblioteca con 60 libros. ¿Cómo encuentras los 10 que más le gustarían a un niño que ama los dragones y el espacio?*
 
----
-
-## 🏆 Sistema de Gamificación
-
-### Rachas (Streaks)
-- 🔥 Días consecutivos de lectura
-- 🏅 Récord personal guardado
-
-### Insignias (Badges)
-
-| Insignia | Páginas requeridas | Icono |
-|----------|-------------------|-------|
-| First Pages | 10 | 📖 |
-| Chapter One | 50 | 📚 |
-| Bookworm | 100 | 🔖 |
-| Avid Reader | 500 | 🎓 |
-| Reading Champion | 1000 | 🏆 |
-| Legendary Reader | 5000 | 👑 |
-| First Book | 1 libro | ⭐ |
-| Explorer | 3 materias diferentes | 🧭 |
-
----
-
-## 📂 Estructura del Proyecto
+### Paso a paso (explicado sin tecnicismos):
 
 ```
-PequeLectores_inteligente_por_IA/
-├── backend/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── deps.py              # Dependencias FastAPI (DB session)
-│   │   │   └── routes/
-│   │   │       ├── auth.py          # Registro/login JWT
-│   │   │       ├── preferences.py   # Preferencias del niño
-│   │   │       ├── recommendations.py # Motor de recomendación
-│   │   │       ├── reading.py       # Registro de lectura + streaks
-│   │   │       └── gamification.py  # Badges e insignias
-│   │   ├── middleware/
-│   │   │   └── errors.py            # Manejo global de errores
-│   │   ├── models/                  # Modelos SQLAlchemy
-│   │   ├── services/
-│   │   │   ├── recommender.py       # 🧠 IA: TF-IDF + cosine similarity
-│   │   │   ├── openlibrary.py       # Cliente Open Library API
-│   │   │   └── auth.py              # Servicio de autenticación
-│   │   ├── config.py                # Configuración con pydantic-settings
-│   │   ├── database.py              # Conexión async a PostgreSQL
-│   │   └── main.py                  # Punto de entrada FastAPI
-│   ├── tests/                       # Tests backend (pytest)
-│   ├── Dockerfile                   # Imagen para Railway
-│   └── requirements.txt
-├── frontend/
-│   ├── src/
-│   │   ├── api/client.ts            # Cliente HTTP tipado
-│   │   ├── components/              # BookCard, StreakCounter, IconPicker...
-│   │   ├── pages/                   # Home, Preferences, Recommendations, Profile
-│   │   ├── types/                   # Tipos TypeScript
-│   │   └── schemas/                 # Validación Zod
-│   ├── tests/                       # Tests frontend (Vitest)
-│   └── package.json
-├── netlify.toml                     # Configuración Netlify
-├── railway.json                     # Configuración Railway
-└── docker-compose.yml               # PostgreSQL local
+1. El niño elige 🐉 dragón y 🚀 espacio
+        ↓
+2. Traducimos los íconos a palabras: "dragons", "fantasy", "space", "astronauts"
+        ↓
+3. Buscamos en internet 60 libros que hablen de esos temas
+        ↓
+4. Convertimos cada libro en una lista de números (un "vector")
+   - Cada número representa qué tan importante es una palabra en ese libro
+   - Ejemplo: para "dragons", el libro "His Majesty's Dragon" recibe un número alto
+        ↓
+5. Convertimos los gustos del niño en otra lista de números (otro "vector")
+        ↓
+6. Comparamos los vectores con "similitud coseno"
+   - Si apuntan en la misma dirección → el libro es muy relevante (score alto)
+   - Si apuntan en direcciones opuestas → el libro no tiene nada que ver (score bajo)
+        ↓
+7. Ordenamos los 60 libros del más al menos relevante
+        ↓
+8. Mostramos los 10 mejores, explicando POR QUÉ cada uno:
+   "Este libro salió porque contiene: dragons, fantasy, adventure"
+```
+
+### Los 3 conceptos de IA que usamos:
+
+| Concepto | Explicación simple | Ejemplo |
+|----------|-------------------|---------|
+| **TF-IDF** | Mide qué tan importante es una palabra en un libro comparado con todos los demás. "Dragón" es muy importante en un libro de dragones, pero "el" o "la" no importan porque salen en todos. | La palabra "dragons" pesa mucho en *Eragon*, pero "the" pesa casi nada |
+| **Similitud Coseno** | Compara si dos listas de números "apuntan" en la misma dirección. No importa qué tan largas sean las listas, sino hacia dónde van. | Niño: [dragons=0.8, space=0.6, cooking=0.0] vs Libro: [dragons=0.9, space=0.1, cooking=0.0] → ¡Muy parecidos! |
+| **XAI** | Inteligencia Artificial Explicable: en vez de ser una "caja negra", nuestro sistema TE DICE por qué recomendó cada libro. | "Recomendado por: dragons, fantasy, adventure" |
+
+### Ejemplo de lo que el niño ve:
+
+```
+📚 His Majesty's Dragon    → 41% compatible | Por: dragons, fantasy
+📚 Dragonsong              → 28% compatible | Por: dragons, fantasy  
+📚 No children, no pets    → 28% compatible | Por: pets
 ```
 
 ---
 
-## 🧪 Desarrollo Local
+## 🛠️ Tecnologías que usamos
 
-```bash
-# 1. PostgreSQL
-docker-compose up -d
+| Categoría | Herramienta | ¿Para qué sirve? |
+|-----------|-------------|------------------|
+| **Interfaz visual** | React, TypeScript | Lo que el usuario ve y toca en la pantalla |
+| **Lógica del sistema** | FastAPI, Python | El cerebro que procesa las peticiones |
+| **Almacenamiento** | PostgreSQL | Guarda usuarios, gustos, libros leídos |
+| **Inteligencia Artificial** | scikit-learn | La parte que "piensa" y recomienda |
+| **Seguridad** | JWT + bcrypt | Contraseñas protegidas y acceso seguro |
+| **Calidad** | pytest, Vitest | Pruebas automáticas para que nada se rompa |
 
-# 2. Backend
-cd backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+---
 
-# 3. Frontend
-cd frontend
-npm install
-npm run dev
-```
+## 🏆 ¿Cómo motivamos a los niños a leer?
+
+### 🔥 Rachas de lectura
+El sistema cuenta cuántos días seguidos ha leído el niño. Si lee hoy y mañana, tiene una racha de 2 días. Si falla un día, la racha vuelve a cero. ¡Como el Snapchat de la lectura!
+
+### 🏅 Insignias por logros
+
+| Insignia | ¿Cuándo se gana? |
+|----------|------------------|
+| 📖 First Pages | Leer 10 páginas |
+| 📚 Chapter One | Leer 50 páginas |
+| 🔖 Bookworm | Leer 100 páginas |
+| 🎓 Avid Reader | Leer 500 páginas |
+| 🏆 Reading Champion | Leer 1000 páginas |
+| 👑 Legendary Reader | Leer 5000 páginas |
+| ⭐ First Book | Terminar el primer libro |
+| 🧭 Explorer | Leer libros de 3 temas diferentes |
 
 ---
 
 ## 📚 Lo que Aprendimos de IA
 
 ### ✅ Qué aplicamos del bootcamp
-- **TF-IDF (Term Frequency - Inverse Document Frequency)** — entendimos cómo medir la importancia de una palabra en un documento relativa a una colección. Las palabras que aparecen mucho en un libro pero poco en los demás reciben mayor peso, permitiendo identificar qué hace único a cada libro.
-- **Vectorización de texto** — aprendimos a transformar datos no estructurados (títulos, autores, temas) en vectores numéricos que una máquina puede procesar. Cada libro se convierte en un punto en un espacio de 500 dimensiones.
-- **Similitud coseno** — en vez de comparar palabras exactas, comparamos la dirección de los vectores. Si el vector de preferencias del niño y el vector de un libro apuntan en direcciones similares, el libro es relevante. Esto captura relaciones semánticas que un simple `if "dragons" in subjects` nunca detectaría.
-- **Content-Based Filtering** — implementamos un sistema de recomendación completo donde el perfil del usuario (sus intereses) se compara con las características de los items (metadatos de libros). Sin necesidad de datos históricos de otros usuarios.
-- **XAI (Explainable AI)** — no solo recomendamos, explicamos por qué. Identificamos qué palabras del vocabulario TF-IDF más contribuyeron a cada recomendación, haciendo el sistema transparente y auditable.
+- **TF-IDF** — cómo medir la importancia de una palabra en un texto. No es lo mismo "dragón" (importante, sale poco) que "el" (irrelevante, sale en todos lados).
+- **Vectorización** — cómo convertir palabras en números para que una computadora las entienda.
+- **Similitud coseno** — cómo comparar gustos con libros sin buscar palabras exactas, sino "direcciones" en un espacio matemático.
+- **Content-Based Filtering** — recomendar basándonos en el CONTENIDO del libro (sus temas), no en lo que otros usuarios leyeron.
+- **XAI** — no solo decir "lee este libro", sino explicar POR QUÉ.
 
-### ⚠️ Retos enfrentados con la IA
-- **Calidad de datos** — OpenLibrary a veces devuelve libros sin `subjects` o con metadatos incompletos. Aprendimos que en ML real, limpiar y normalizar datos consume más tiempo que entrenar el modelo.
-- **TF-IDF vs embeddings** — TF-IDF funciona bien con vocabularios pequeños y conocidos, pero no captura sinónimos ni contexto semántico profundo. Un siguiente paso natural sería usar embeddings (Word2Vec, FastText) o modelos transformer.
-- **Balance simplicidad vs sofisticación** — para un proyecto académico, TF-IDF es perfecto porque se entiende y se explica. Modelos más complejos (redes neuronales, collaborative filtering) requieren más datos y son más difíciles de depurar.
+### ⚠️ Retos que enfrentamos
+- **Datos sucios** — muchos libros en internet tienen información incompleta. Aprendimos que limpiar datos es el 80% del trabajo en IA.
+- **TF-IDF no entiende sinónimos** — "dragón" y "bestia alada" son lo mismo para un humano, pero para la máquina son palabras distintas. Eso se resuelve con embeddings o transformers.
+- **Simplicidad vs potencia** — para un proyecto académico, TF-IDF es perfecto porque se ENTIENDE y se EXPLICA. Modelos más complejos existen, pero son "cajas negras".
 
-### 🔜 Próximos pasos en IA
-- Incorporar **feedback implícito** — usar los libros que el niño ya leyó para refinar recomendaciones
-- **Cold start** — cuando un niño nuevo no tiene preferencias, recomendar por popularidad o edad
-- Evaluar el sistema con **métricas de recomendación** (precision@k, recall@k, diversity)
+### 🔜 ¿Qué seguiría después?
+- Que el sistema **aprenda de lo que el niño ya leyó** (feedback)
+- **Recomendar sin conocer gustos** (cold start: por edad o popularidad)
+- **Medir qué tan buenas son las recomendaciones** (métricas: precision, recall)
+
+---
+
+## 🧪 ¿Cómo probarlo en tu computadora?
+
+```bash
+# 1. Base de datos
+docker-compose up -d
+
+# 2. Backend (el cerebro)
+cd backend
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+
+# 3. Frontend (la página web)
+cd frontend
+npm install
+npm run dev
+```
+
+Luego abre `http://localhost:5173` en tu navegador.
 
 ---
 
